@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <!--  Corin Color  -->
+    <color name="corin_lightBlue">#C7DAEF</color>
+    <color name="corin_middleBlue">#1565c0</color>
+    <color name="corin_blue">#003c8f</color>
+    <color name="corin_red">#ff4444</color>
+    <color name="corin_lightGray">#F4F4F4</color>
+    <color name="corin_middleGray">#DDDDDD</color>
+    <color name="corin_gray">#B9B9B9</color>
+    <color name="corin_darkGray">#444444</color>
+    <color name="corin_black">#343434</color>
+    <color name="corin_alpha_gray">#33B9B9B9</color>
+</resources>
