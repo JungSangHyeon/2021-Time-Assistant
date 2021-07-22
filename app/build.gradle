@@ -30,6 +30,13 @@ android {
 
 dependencies {
 
+    // Rx Java
+        implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
+        implementation 'io.reactivex.rxjava3:rxjava:3.0.7'
+
+    // Gson
+        implementation 'com.google.code.gson:gson:2.8.5'
+
     // Lombok
         implementation 'org.projectlombok:lombok'
         implementation 'org.projectlombok:lombok:1.18.16'

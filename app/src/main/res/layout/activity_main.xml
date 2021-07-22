@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/corin_lightGray"
-    tools:context=".MainActivity">
+    tools:context=".view.mainActivity.MainActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/mainActivity_titleBar"
@@ -36,21 +36,11 @@
             android:layout_height="28dp"
             android:layout_marginHorizontal="16dp"
             android:src="@drawable/ic_baseline_add_24"
-            app:layout_constraintBottom_toBottomOf="@+id/mainActivity_titleBar_moreImageView"
-            app:layout_constraintEnd_toStartOf="@+id/mainActivity_titleBar_moreImageView"
-            app:layout_constraintTop_toTopOf="@+id/mainActivity_titleBar_moreImageView"
-            app:tint="@color/black" />
-
-        <ImageView
-            android:id="@+id/mainActivity_titleBar_moreImageView"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:layout_marginHorizontal="16dp"
-            android:src="@drawable/ic_baseline_menu_24"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:tint="@color/black" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.recyclerview.widget.RecyclerView

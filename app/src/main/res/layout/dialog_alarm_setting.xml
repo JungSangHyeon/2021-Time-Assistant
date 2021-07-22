@@ -3,28 +3,28 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    tools:context=".AlarmSettingActivity">
+    android:layout_height="wrap_content">
 
     <com.google.android.material.chip.Chip
         android:id="@+id/alarmSettingDialog_amPmChip"
+        style="@style/Widget.MaterialComponents.Chip.Choice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:backgroundTint="@color/corin_lightBlue"
         android:text="오전"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/alarmSettingDialog_hourEditText"
-        android:layout_width="33dp"
-        android:layout_height="49dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
-        android:ems="10"
+        android:ems="2"
         android:gravity="center"
+        android:hint="00"
         android:inputType="number"
-        android:text="12"
+        android:maxLength="2"
         app:layout_constraintBottom_toBottomOf="@+id/alarmSettingDialog_amPmChip"
         app:layout_constraintStart_toEndOf="@+id/alarmSettingDialog_amPmChip"
         app:layout_constraintTop_toTopOf="@+id/alarmSettingDialog_amPmChip" />
@@ -40,13 +40,14 @@
 
     <EditText
         android:id="@+id/alarmSettingDialog_minuteEditText"
-        android:layout_width="33dp"
-        android:layout_height="49dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
-        android:ems="10"
+        android:ems="2"
         android:gravity="center"
+        android:hint="00"
         android:inputType="number"
-        android:text="53"
+        android:maxLength="2"
         app:layout_constraintBottom_toBottomOf="@+id/alarmSettingDialog_hourTextView"
         app:layout_constraintStart_toEndOf="@+id/alarmSettingDialog_hourTextView"
         app:layout_constraintTop_toTopOf="@+id/alarmSettingDialog_hourTextView" />
@@ -68,39 +69,54 @@
         app:chipSpacingHorizontal="0dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/alarmSettingDialog_amPmChip">
+        app:layout_constraintTop_toBottomOf="@+id/alarmSettingDialog_amPmChip"
+        app:singleLine="true">
 
         <com.google.android.material.chip.Chip
+            android:id="@+id/alarmSettingDialog_sunChip"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="일" />
 
         <com.google.android.material.chip.Chip
+            android:id="@+id/alarmSettingDialog_monChip"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="월" />
 
         <com.google.android.material.chip.Chip
+            android:id="@+id/alarmSettingDialog_tusChip"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="화" />
 
         <com.google.android.material.chip.Chip
+            android:id="@+id/alarmSettingDialog_wenChip"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="수" />
 
         <com.google.android.material.chip.Chip
+            android:id="@+id/alarmSettingDialog_thuChip"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="목" />
 
         <com.google.android.material.chip.Chip
+            android:id="@+id/alarmSettingDialog_friChip"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="금" />
 
         <com.google.android.material.chip.Chip
+            android:id="@+id/alarmSettingDialog_satChip"
+            style="@style/Widget.MaterialComponents.Chip.Choice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="토" />
@@ -109,17 +125,37 @@
 
 
     <EditText
-        android:id="@+id/alarmSettingActivity_textToSpeechEditText"
+        android:id="@+id/alarmSettingDialog_textToSpeechEditText"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:ems="10"
-        android:hint="Text To Speech"
+        android:hint="읽을 내용"
         android:maxLines="10"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.005"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/alarmSettingDialog_weekDayChipGroup" />
 
+    <Button
+        android:id="@+id/alarmSettingDialog_deleteButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginVertical="8dp"
+        android:backgroundTint="@color/corin_red"
+        android:text="Delete"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/alarmSettingDialog_textToSpeechEditText" />
+
+    <Button
+        android:id="@+id/alarmSettingDialog_saveButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginVertical="8dp"
+        android:text="Save"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/alarmSettingDialog_textToSpeechEditText" />
 </androidx.constraintlayout.widget.ConstraintLayout>
