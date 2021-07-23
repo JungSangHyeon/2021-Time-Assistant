@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,29 +25,24 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        this.createComponent();
-        this.associateView();
-        this.initializeView();
-    }
-
-    private void createComponent() {
-    }
-
-    private void associateView() {
+        // Find
         this.addImageView = this.findViewById(R.id.mainActivity_titleBar_addImageView);
         this.alarmList = this.findViewById(R.id.mainActivity_alarmList);
 
-        AlarmAdapter alarmAdapter = new AlarmAdapter(this);
+        // Set Attribute
         this.alarmList.setLayoutManager(new LinearLayoutManager(this));
-        this.alarmList.setAdapter(alarmAdapter);
-    }
 
-    private void initializeView() {
+        // Set Callback
         this.addImageView.setOnClickListener(this::addAlarm);
+        AlarmDatabase alarmDatabase = AlarmDatabase.getDatabase(this);
+        AlarmDao alarmDao = alarmDatabase.alarmDao();
+        alarmDao.getData().observe(this, o->{
+            AlarmAdapter alarmAdapter = new AlarmAdapter( o);
+            this.alarmList.setAdapter(alarmAdapter);
+        });
     }
 
     private void addAlarm(View view) {
-        new AlarmSettingDialog(this, AlarmSettingDialog.EType.CreateNew).show();
+        new AlarmSettingDialog(this).show();
     }
-
 }

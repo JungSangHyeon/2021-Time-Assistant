@@ -30,7 +30,6 @@
         android:includeFontPadding="false"
         android:text="월화수목금토일"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/alarmItem_timeTextView"
         app:layout_constraintStart_toStartOf="@+id/alarmItem_timeTextView"
         app:layout_constraintTop_toBottomOf="@+id/alarmItem_timeTextView" />
 
