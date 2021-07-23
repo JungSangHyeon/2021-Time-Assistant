@@ -1,4 +1,4 @@
-package com.example.timeassistant.view.mainActivity.alarmList;
+package com.example.timeassistant.domain.view.mainActivity.alarmList;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.timeassistant.R;
-import com.example.timeassistant.model.AlarmEntity;
+import com.example.timeassistant.domain.model.AlarmEntity;
 
 import java.util.List;
 

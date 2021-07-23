@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/corin_lightGray"
-    tools:context=".view.mainActivity.MainActivity">
+    tools:context=".domain.view.mainActivity.MainActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/mainActivity_titleBar"
@@ -51,7 +51,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/mainActivity_titleBar"
-        tools:itemCount="4"
+        tools:itemCount="0"
         tools:listitem="@layout/item_alarm" />
+
+    <TextView
+        android:id="@+id/mainActivity_emptyAlarmListPlaceHoldTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="+ 버튼을 눌러 알람을 추가해주시면\n알람 시간에 알려드리겠습니다"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/mainActivity_titleBar"
+        app:layout_constraintVertical_bias="0.15" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -9,7 +9,17 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TimeAssistant">
-        <activity android:name=".view.mainActivity.MainActivity">
+        <service
+            android:name=".domain.AlarmService"
+            android:enabled="true"
+            android:exported="true"></service>
+
+        <receiver
+            android:name=".domain.AlarmReceiver"
+            android:enabled="true"
+            android:exported="true" />
+
+        <activity android:name=".domain.view.mainActivity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

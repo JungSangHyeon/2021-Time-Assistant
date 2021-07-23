@@ -1,4 +1,4 @@
-package com.example.timeassistant.model;
+package com.example.timeassistant.domain.model;
 
 import android.content.Context;
 

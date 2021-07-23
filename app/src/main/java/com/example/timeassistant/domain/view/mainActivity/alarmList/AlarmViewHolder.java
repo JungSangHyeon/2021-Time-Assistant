@@ -1,4 +1,4 @@
-package com.example.timeassistant.view.mainActivity.alarmList;
+package com.example.timeassistant.domain.view.mainActivity.alarmList;
 
 import android.view.View;
 import android.widget.TextView;
@@ -6,10 +6,10 @@ import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.timeassistant.R;
-import com.example.timeassistant.model.Alarm;
-import com.example.timeassistant.model.AlarmEntity;
-import com.example.timeassistant.model.GsonConverter;
-import com.example.timeassistant.view.alarmSettingDialog.AlarmSettingDialog;
+import com.example.timeassistant.domain.model.Alarm;
+import com.example.timeassistant.domain.model.AlarmEntity;
+import com.example.timeassistant.domain.model.GsonConverter;
+import com.example.timeassistant.domain.view.alarmSettingDialog.AlarmSettingDialog;
 
 import java.util.Calendar;
 

@@ -1,7 +1,11 @@
-package com.example.timeassistant.view.alarmSettingDialog;
+package com.example.timeassistant.domain.view.alarmSettingDialog;
 
+import android.app.AlarmManager;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -9,19 +13,19 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.timeassistant.R;
-import com.example.timeassistant.model.Alarm;
-import com.example.timeassistant.model.AlarmDao;
-import com.example.timeassistant.model.AlarmDatabase;
-import com.example.timeassistant.model.AlarmEntity;
-import com.example.timeassistant.model.GsonConverter;
+import com.example.timeassistant.domain.AlarmReceiver;
+import com.example.timeassistant.domain.model.Alarm;
+import com.example.timeassistant.domain.model.AlarmDao;
+import com.example.timeassistant.domain.model.AlarmEntity;
+import com.example.timeassistant.domain.model.AlarmDatabase;
+import com.example.timeassistant.domain.model.GsonConverter;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
-
-import io.reactivex.rxjava3.core.Observable;
 
 public class AlarmSettingDialog extends Dialog {
 
@@ -99,6 +103,7 @@ public class AlarmSettingDialog extends Dialog {
         AlarmDatabase alarmDatabase = AlarmDatabase.getDatabase(this.getContext());
         AlarmDao alarmDao = alarmDatabase.alarmDao();
         new Thread(() -> alarmDao.delete(this.alarmEntity)).start();
+        // Remove Alarm
         this.dismiss();
     }
 
@@ -109,17 +114,53 @@ public class AlarmSettingDialog extends Dialog {
             this.makeToastWithText("읽을 내용을 입력해 주세요");
         } else {
             Alarm alarm = this.createAlarm();
+            AlarmEntity alarmEntity;
             if(this.alarmEntity==null){
-                AlarmEntity alarmEntity = this.createAlarmEntity(alarm);
+                alarmEntity = this.createAlarmEntity(alarm);
                 this.saveAlarmEntity(alarmEntity);
             }else{
-                this.alarmEntity.setAlarmJson(GsonConverter.fromTypeToString(alarm));
+                alarmEntity = this.alarmEntity;
+                alarmEntity.setAlarmJson(GsonConverter.fromTypeToString(alarm));
                 AlarmDatabase alarmDatabase = AlarmDatabase.getDatabase(this.getContext());
                 AlarmDao alarmDao = alarmDatabase.alarmDao();
-                new Thread(() -> alarmDao.update(this.alarmEntity)).start();
+                new Thread(() -> alarmDao.update(alarmEntity)).start();
+                // Remove Alarm
             }
+            // Set Alarm
+            this.setAlarm(alarmEntity, alarm); // TODO CALL THIS AFTER ID SET
             this.dismiss();
         }
+    }
+
+    public void setAlarm(AlarmEntity alarmEntity, Alarm alarm){
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.AM_PM, alarm.getAmPm());
+        calendar.set(Calendar.HOUR, alarm.getHour());
+        calendar.set(Calendar.MINUTE, alarm.getMinute());
+        calendar.set(Calendar.SECOND, 0);
+
+        if(calendar.getTimeInMillis() < System.currentTimeMillis()) {
+            calendar.add(Calendar.DATE, 1);
+        }
+
+        while(!alarm.getWeekDays()[calendar.get(Calendar.DAY_OF_WEEK)-1]) {
+            calendar.add(Calendar.DATE, 1);
+        }
+
+        // TEST
+        SimpleDateFormat format2 = new SimpleDateFormat ( "yyyy년 MM월dd일 HH시mm분ss초");
+        String time1 = format2.format(calendar.getTimeInMillis());
+        Log.e("ALARM SET", time1);
+        // TEST END
+
+        Intent intent = new Intent(this.getContext(), AlarmReceiver.class);
+        intent.putExtra("id", alarmEntity.getId());
+
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this.getContext(), alarmEntity.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        AlarmManager alarmManager = (AlarmManager) this.getContext().getSystemService(Context.ALARM_SERVICE);
+        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
     }
 
     private boolean isCorrectHourTyped() { return this.isCorrectHour(this.getHour()); }
