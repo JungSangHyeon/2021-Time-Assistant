@@ -104,6 +104,13 @@ public class AlarmSettingDialog extends Dialog {
         AlarmDao alarmDao = alarmDatabase.alarmDao();
         new Thread(() -> alarmDao.delete(this.alarmEntity)).start();
         // Remove Alarm
+
+        Intent intent = new Intent(this.getContext(), AlarmReceiver.class);
+        intent.putExtra("id", alarmEntity.getId());
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this.getContext(), alarmEntity.getId(), intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        AlarmManager alarmManager = (AlarmManager) this.getContext().getSystemService(Context.ALARM_SERVICE);
+        alarmManager.cancel(pendingIntent);
+
         this.dismiss();
     }
 
@@ -132,8 +139,7 @@ public class AlarmSettingDialog extends Dialog {
         }
     }
 
-    public void setAlarm(AlarmEntity alarmEntity, Alarm alarm){
-
+    public void setAlarm(AlarmEntity alarmEntity, Alarm alarm) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.AM_PM, alarm.getAmPm());
         calendar.set(Calendar.HOUR, alarm.getHour());
@@ -157,7 +163,7 @@ public class AlarmSettingDialog extends Dialog {
         Intent intent = new Intent(this.getContext(), AlarmReceiver.class);
         intent.putExtra("id", alarmEntity.getId());
 
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this.getContext(), alarmEntity.getId(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this.getContext(), alarmEntity.getId(), intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         AlarmManager alarmManager = (AlarmManager) this.getContext().getSystemService(Context.ALARM_SERVICE);
         alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);

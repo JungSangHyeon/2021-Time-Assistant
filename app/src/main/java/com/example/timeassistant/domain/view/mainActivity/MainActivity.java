@@ -20,11 +20,11 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
+    // 정렬 필요. 시간순
+
     private ImageView addImageView;
     private RecyclerView alarmList;
     private TextView emptyAlarmListPlaceHoldTextView;
-
-    // Alarm Delete, Repeat Need
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         alarmDao.getData().observe(this, o->{
             AlarmAdapter alarmAdapter = new AlarmAdapter( o);
             this.alarmList.setAdapter(alarmAdapter);
-            if(alarmAdapter.getItemCount()!=0){
+            if(alarmAdapter.getItemCount()!=0) {
                 this.emptyAlarmListPlaceHoldTextView.setVisibility(View.GONE);
             }else{
                 this.emptyAlarmListPlaceHoldTextView.setVisibility(View.VISIBLE);
