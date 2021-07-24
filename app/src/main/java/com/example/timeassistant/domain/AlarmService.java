@@ -49,7 +49,7 @@ public class AlarmService extends Service {
                     }
                     if(targetEntity!=null){
                         Alarm targetAlarm = GsonConverter.fromStringToType(targetEntity.getAlarmJson(), Alarm.class);
-                        Log.e("ALARM RECEIVE"+" "+i, targetAlarm.getTextToSpeech());
+                        Log.e("ALARM RECEIVE", targetEntityId+", "+targetAlarm.getTextToSpeech());
 
                         tts = new TextToSpeech(getApplicationContext(), status -> {
                             if (status != TextToSpeech.ERROR) {

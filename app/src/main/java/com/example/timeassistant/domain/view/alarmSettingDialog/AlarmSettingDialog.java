@@ -105,6 +105,8 @@ public class AlarmSettingDialog extends Dialog {
         new Thread(() -> alarmDao.delete(this.alarmEntity)).start();
         // Remove Alarm
 
+        Log.e("ALARM REMOVE", alarmEntity.getId()+"");
+
         Intent intent = new Intent(this.getContext(), AlarmReceiver.class);
         intent.putExtra("id", alarmEntity.getId());
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this.getContext(), alarmEntity.getId(), intent, PendingIntent.FLAG_CANCEL_CURRENT);
@@ -115,31 +117,47 @@ public class AlarmSettingDialog extends Dialog {
     }
 
     private void save(View view) {
-        if( ! isCorrectHourTyped() || ! isCorrectMinuteTyped()) {
+        if (!isCorrectHourTyped() || !isCorrectMinuteTyped()) {
             this.makeToastWithText("올바른 시간을 입력해 주세요");
-        } else if ( ! isCorrectTextToSpeechTyped()){
+        } else if (!isCorrectWeekDay()) {
+            this.makeToastWithText("요일을 선택해 주세요");
+        } else if (!isCorrectTextToSpeechTyped()) {
             this.makeToastWithText("읽을 내용을 입력해 주세요");
         } else {
             Alarm alarm = this.createAlarm();
             AlarmEntity alarmEntity;
             if(this.alarmEntity==null){
                 alarmEntity = this.createAlarmEntity(alarm);
-                this.saveAlarmEntity(alarmEntity);
+
+                AlarmDatabase alarmDatabase = AlarmDatabase.getDatabase(this.getContext());
+                AlarmDao alarmDao = alarmDatabase.alarmDao();
+                new Thread(() -> {
+                    long id = alarmDao.insert(alarmEntity);
+                    this.setAlarm(alarmEntity, alarm, id);
+                }).start();
             }else{
                 alarmEntity = this.alarmEntity;
                 alarmEntity.setAlarmJson(GsonConverter.fromTypeToString(alarm));
+
                 AlarmDatabase alarmDatabase = AlarmDatabase.getDatabase(this.getContext());
                 AlarmDao alarmDao = alarmDatabase.alarmDao();
-                new Thread(() -> alarmDao.update(alarmEntity)).start();
-                // Remove Alarm
+                new Thread(() -> {
+                    alarmDao.update(alarmEntity);
+                    this.setAlarm(alarmEntity, alarm, alarmEntity.getId());
+                }).start();
             }
-            // Set Alarm
-            this.setAlarm(alarmEntity, alarm); // TODO CALL THIS AFTER ID SET
+             // TODO CALL THIS AFTER ID SET
             this.dismiss();
         }
     }
 
-    public void setAlarm(AlarmEntity alarmEntity, Alarm alarm) {
+    private boolean isCorrectWeekDay() {
+        boolean result = false;
+        for(boolean isChecked : this.getWeekdays()) result|=isChecked;
+        return result;
+    }
+
+    public void setAlarm(AlarmEntity alarmEntity, Alarm alarm, long id) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.AM_PM, alarm.getAmPm());
         calendar.set(Calendar.HOUR, alarm.getHour());
@@ -157,13 +175,13 @@ public class AlarmSettingDialog extends Dialog {
         // TEST
         SimpleDateFormat format2 = new SimpleDateFormat ( "yyyy년 MM월dd일 HH시mm분ss초");
         String time1 = format2.format(calendar.getTimeInMillis());
-        Log.e("ALARM SET", time1);
+        Log.e("ALARM SET", id+", "+time1);
         // TEST END
 
         Intent intent = new Intent(this.getContext(), AlarmReceiver.class);
         intent.putExtra("id", alarmEntity.getId());
 
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this.getContext(), alarmEntity.getId(), intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this.getContext(), (int) id, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
         AlarmManager alarmManager = (AlarmManager) this.getContext().getSystemService(Context.ALARM_SERVICE);
         alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
@@ -211,11 +229,6 @@ public class AlarmSettingDialog extends Dialog {
         AlarmEntity alarmEntity = new AlarmEntity();
         alarmEntity.setAlarmJson(GsonConverter.fromTypeToString(alarm));
         return alarmEntity;
-    }
-    private void saveAlarmEntity(AlarmEntity alarmEntity) {
-        AlarmDatabase alarmDatabase = AlarmDatabase.getDatabase(this.getContext());
-        AlarmDao alarmDao = alarmDatabase.alarmDao();
-        new Thread(() -> alarmDao.insert(alarmEntity)).start();
     }
 }
 

@@ -13,7 +13,7 @@ import java.util.List;
 public interface AlarmDao {
 
     @Insert
-    void insert(AlarmEntity alarmEntity);
+    long insert(AlarmEntity alarmEntity);
 
     @Update
     void update(AlarmEntity... alarmEntities);
