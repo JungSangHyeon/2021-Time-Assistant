@@ -27,11 +27,9 @@ import java.util.Locale;
 public class AlarmService extends Service {
 
     TextToSpeech tts;
-    static int i = 0;
 
     @Override
     public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
-        i++;
         AlarmDatabase alarmDatabase = AlarmDatabase.getDatabase(this);
         AlarmDao alarmDao = alarmDatabase.alarmDao();
         LiveData<List<AlarmEntity>> liveData = alarmDao.getData();
@@ -39,7 +37,7 @@ public class AlarmService extends Service {
             @Override
             public void onChanged(List<AlarmEntity> alarmEntities) {
                 AlarmEntity targetEntity = null;
-                int targetEntityId = intent.getIntExtra("id", -1);
+                int targetEntityId = (int) intent.getLongExtra("id", -1);
                 if (targetEntityId != -1) {
                     for (AlarmEntity alarmEntity : alarmEntities) {
                         if (alarmEntity.getId() == targetEntityId) {
@@ -49,12 +47,12 @@ public class AlarmService extends Service {
                     }
                     if(targetEntity!=null){
                         Alarm targetAlarm = GsonConverter.fromStringToType(targetEntity.getAlarmJson(), Alarm.class);
-                        Log.e("ALARM RECEIVE", targetEntityId+", "+targetAlarm.getTextToSpeech());
+                        Log.e("ALARM RECEIVE SERVICE", targetEntityId+", "+targetAlarm.getTextToSpeech());
 
                         tts = new TextToSpeech(getApplicationContext(), status -> {
                             if (status != TextToSpeech.ERROR) {
                                 tts.setLanguage(Locale.getDefault());
-                                tts.speak(targetAlarm.getTextToSpeech()+" "+i, TextToSpeech.QUEUE_FLUSH, null, null);
+                                tts.speak(targetAlarm.getTextToSpeech(), TextToSpeech.QUEUE_FLUSH, null, null);
                             }
                         });
                         setAlarm(targetEntity, targetAlarm);

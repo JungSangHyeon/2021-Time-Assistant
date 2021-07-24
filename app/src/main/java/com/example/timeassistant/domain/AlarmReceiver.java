@@ -23,8 +23,10 @@ public class AlarmReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
+        Log.e("ALARM RECEIVE RECEIVER", intent.getLongExtra("id", -1)+"");
+
         Intent serviceIntent = new Intent(context, AlarmService.class);
-        serviceIntent.putExtra("id", intent.getIntExtra("id", -1));
+        serviceIntent.putExtra("id", intent.getLongExtra("id", -1));
         context.startService(serviceIntent);
     }
 

@@ -131,6 +131,7 @@ public class AlarmSettingDialog extends Dialog {
 
                 AlarmDatabase alarmDatabase = AlarmDatabase.getDatabase(this.getContext());
                 AlarmDao alarmDao = alarmDatabase.alarmDao();
+                Log.e("ALARM CREATE", "");
                 new Thread(() -> {
                     long id = alarmDao.insert(alarmEntity);
                     this.setAlarm(alarmEntity, alarm, id);
@@ -141,12 +142,12 @@ public class AlarmSettingDialog extends Dialog {
 
                 AlarmDatabase alarmDatabase = AlarmDatabase.getDatabase(this.getContext());
                 AlarmDao alarmDao = alarmDatabase.alarmDao();
+                Log.e("ALARM UPDATE", "");
                 new Thread(() -> {
                     alarmDao.update(alarmEntity);
                     this.setAlarm(alarmEntity, alarm, alarmEntity.getId());
                 }).start();
             }
-             // TODO CALL THIS AFTER ID SET
             this.dismiss();
         }
     }
@@ -179,7 +180,7 @@ public class AlarmSettingDialog extends Dialog {
         // TEST END
 
         Intent intent = new Intent(this.getContext(), AlarmReceiver.class);
-        intent.putExtra("id", alarmEntity.getId());
+        intent.putExtra("id", id);
 
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this.getContext(), (int) id, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
