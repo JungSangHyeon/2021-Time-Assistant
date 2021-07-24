@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.timeassistant.R;
 import com.example.timeassistant.domain.model.AlarmEntity;
 
+import java.util.Collections;
 import java.util.List;
 
 public class AlarmAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
@@ -17,6 +18,7 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
 
     public AlarmAdapter(List<AlarmEntity> alarmEntities) {
         this.alarmEntities = alarmEntities;
+        Collections.sort(alarmEntities);
     }
 
     @Override
