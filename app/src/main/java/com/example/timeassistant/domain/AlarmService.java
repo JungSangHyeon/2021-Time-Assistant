@@ -5,8 +5,11 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioManager;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -24,10 +27,13 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
+import static android.speech.tts.TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID;
+import static android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME;
+
 public class AlarmService extends Service {
 
     TextToSpeech tts;
-
+    int originalMediaVolume;
     @Override
     public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
         AlarmDatabase alarmDatabase = AlarmDatabase.getDatabase(this);
@@ -51,10 +57,37 @@ public class AlarmService extends Service {
 
                         tts = new TextToSpeech(getApplicationContext(), status -> {
                             if (status != TextToSpeech.ERROR) {
+                                tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+                                    @Override
+                                    public void onStart(String utteranceId) {
+                                        Log.e("TTS", "START");
+                                        AudioManager mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                                        originalMediaVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+                                        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+                                    }
+
+                                    @Override
+                                    public void onDone(String utteranceId) {
+                                        Log.e("TTS", "DONE");
+                                        AudioManager mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                                        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, originalMediaVolume, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+                                    }
+
+                                    @Override
+                                    public void onError(String utteranceId) {
+
+                                    }
+                                });
+                                Bundle parameters = new Bundle();
+                                parameters.putFloat(KEY_PARAM_VOLUME, 1f);
                                 tts.setLanguage(Locale.getDefault());
-                                tts.speak(targetAlarm.getTextToSpeech(), TextToSpeech.QUEUE_FLUSH, null, null);
+                                tts.speak(targetAlarm.getTextToSpeech(), TextToSpeech.QUEUE_FLUSH, parameters, "utteranceId");
                             }
                         });
+
+
+
+
                         setAlarm(targetEntity, targetAlarm);
                     }
                 }
