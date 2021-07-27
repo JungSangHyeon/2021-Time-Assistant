@@ -1,4 +1,4 @@
-package com.example.timeassistant.domain.view.alarmSettingDialog;
+package com.example.timeassistant;
 
 import android.app.AlarmManager;
 import android.app.Dialog;
@@ -12,13 +12,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.timeassistant.R;
-import com.example.timeassistant.domain.AlarmReceiver;
-import com.example.timeassistant.domain.model.Alarm;
-import com.example.timeassistant.domain.model.AlarmDao;
-import com.example.timeassistant.domain.model.AlarmEntity;
-import com.example.timeassistant.domain.model.AlarmDatabase;
-import com.example.timeassistant.domain.model.GsonConverter;
+import com.example.timeassistant.database.Alarm;
+import com.example.timeassistant.database.AlarmDao;
+import com.example.timeassistant.database.AlarmDatabase;
+import com.example.timeassistant.database.AlarmEntity;
+import com.example.timeassistant.database.GsonConverter;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
 
@@ -27,8 +25,11 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.example.timeassistant.Constant.ALARM_ID_KEY_NAME;
+
 public class AlarmSettingDialog extends Dialog {
 
+    private static final String AM = "오전", PM = "오후";
     public static final Map<Integer, Integer> WeekDayMap = new HashMap<Integer, Integer>() {{
         put(R.id.alarmSettingDialog_sunChip, 0);
         put(R.id.alarmSettingDialog_monChip, 1);
@@ -44,38 +45,28 @@ public class AlarmSettingDialog extends Dialog {
     private ChipGroup weekdaysChipGroup;
     private EditText textToSpeechEditText;
     private Button deleteButton, saveButton;
-
     private AlarmEntity alarmEntity;
     private Alarm editTarget;
     
     public AlarmSettingDialog(Context context) {
         super(context);
-        this.commonConstructor();
-        this.deleteButton.setVisibility(View.INVISIBLE);
+        this.createNewAlarmConstructor();
     }
     public AlarmSettingDialog(Context context, AlarmEntity alarmEntity) {
         super(context);
-        this.alarmEntity=alarmEntity;
-        this.editTarget = GsonConverter.fromStringToType(alarmEntity.getAlarmJson(), Alarm.class);;
-        this.commonConstructor();
-        this.deleteButton.setOnClickListener(this::delete);
-        this.setEditData();
+        this.updateAlarmConstructor(alarmEntity);
     }
 
-    private void setEditData() {
-        if (this.editTarget.getAmPm() == 1) {
-            this.amPmChip.setChecked(true);
-            this.amPmChip.setText("오후");
-        }
-        this.hourEditText.setText(Integer.toString(this.editTarget.getHour()));
-        this.minuteEditText.setText(Integer.toString(this.editTarget.getMinute()));
-        for(int i=0; i<7; i++){
-            if(this.editTarget.getWeekDays()[i]) {
-                Chip chip = this.findViewById(this.weekdaysChipGroup.getChildAt(i).getId());
-                chip.setChecked(true);
-            }
-        }
-        this.textToSpeechEditText.setText(this.editTarget.getTextToSpeech());
+    private void createNewAlarmConstructor() {
+        this.commonConstructor();
+        this.deleteButton.setVisibility(View.INVISIBLE);
+    }
+    private void updateAlarmConstructor(AlarmEntity alarmEntity) {
+        this.commonConstructor();
+        this.deleteButton.setOnClickListener(this::delete);
+        this.alarmEntity=alarmEntity;
+        this.editTarget = GsonConverter.fromStringToType(alarmEntity.getAlarmJson(), Alarm.class);;
+        this.setEditData();
     }
 
     private void commonConstructor(){
@@ -94,28 +85,41 @@ public class AlarmSettingDialog extends Dialog {
         this.saveButton.setOnClickListener(this::save);
     }
 
-    private void changeAmPm(View view) {
-        if(this.amPmChip.isChecked()) this.amPmChip.setText("오후");
-        else this.amPmChip.setText("오전");
+    private void setEditData() {
+        if (this.editTarget.getAmPm() == Calendar.PM) {
+            this.amPmChip.setChecked(true);
+            this.amPmChip.setText(PM);
+        }
+        this.hourEditText.setText(Integer.toString(this.editTarget.getHour()));
+        this.minuteEditText.setText(Integer.toString(this.editTarget.getMinute()));
+        for(int i=0; i<7; i++){
+            if(this.editTarget.getWeekDays()[i]) {
+                Chip chip = this.findViewById(this.weekdaysChipGroup.getChildAt(i).getId());
+                chip.setChecked(true);
+            }
+        }
+        this.textToSpeechEditText.setText(this.editTarget.getTextToSpeech());
     }
 
+    private void changeAmPm(View view) {
+        if(this.amPmChip.isChecked()) this.amPmChip.setText(PM);
+        else this.amPmChip.setText(AM);
+    }
     private void delete(View view) {
+        Log.e("ALARM DELETE", this.alarmEntity.getId()+"");
+
         AlarmDatabase alarmDatabase = AlarmDatabase.getDatabase(this.getContext());
         AlarmDao alarmDao = alarmDatabase.alarmDao();
         new Thread(() -> alarmDao.delete(this.alarmEntity)).start();
-        // Remove Alarm
-
-        Log.e("ALARM REMOVE", alarmEntity.getId()+"");
 
         Intent intent = new Intent(this.getContext(), AlarmReceiver.class);
-        intent.putExtra("id", alarmEntity.getId());
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this.getContext(), alarmEntity.getId(), intent, PendingIntent.FLAG_CANCEL_CURRENT);
+        intent.putExtra(ALARM_ID_KEY_NAME, this.alarmEntity.getId());
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this.getContext(), this.alarmEntity.getId(), intent, PendingIntent.FLAG_CANCEL_CURRENT);
         AlarmManager alarmManager = (AlarmManager) this.getContext().getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(pendingIntent);
 
         this.dismiss();
     }
-
     private void save(View view) {
         if (!isCorrectHourTyped() || !isCorrectMinuteTyped()) {
             this.makeToastWithText("올바른 시간을 입력해 주세요");
@@ -128,24 +132,26 @@ public class AlarmSettingDialog extends Dialog {
             AlarmEntity alarmEntity;
             if(this.alarmEntity==null){
                 alarmEntity = this.createAlarmEntity(alarm);
+                this.setTimeValueForSort(alarmEntity, alarm);
 
                 AlarmDatabase alarmDatabase = AlarmDatabase.getDatabase(this.getContext());
                 AlarmDao alarmDao = alarmDatabase.alarmDao();
                 Log.e("ALARM CREATE", "");
                 new Thread(() -> {
                     long id = alarmDao.insert(alarmEntity);
-                    this.setAlarm(alarmEntity, alarm, id);
+                    this.setAlarm(alarm, id);
                 }).start();
             }else{
                 alarmEntity = this.alarmEntity;
                 alarmEntity.setAlarmJson(GsonConverter.fromTypeToString(alarm));
+                this.setTimeValueForSort(alarmEntity, alarm);
 
                 AlarmDatabase alarmDatabase = AlarmDatabase.getDatabase(this.getContext());
                 AlarmDao alarmDao = alarmDatabase.alarmDao();
                 Log.e("ALARM UPDATE", "");
                 new Thread(() -> {
                     alarmDao.update(alarmEntity);
-                    this.setAlarm(alarmEntity, alarm, alarmEntity.getId());
+                    this.setAlarm(alarm, alarmEntity.getId());
                 }).start();
             }
             this.dismiss();
@@ -158,12 +164,13 @@ public class AlarmSettingDialog extends Dialog {
         return result;
     }
 
-    public void setAlarm(AlarmEntity alarmEntity, Alarm alarm, long id) {
+    public void setAlarm(Alarm alarm, long id) {
         Calendar calendar = Calendar.getInstance();
         calendar.set(Calendar.AM_PM, alarm.getAmPm());
         calendar.set(Calendar.HOUR, alarm.getHour());
         calendar.set(Calendar.MINUTE, alarm.getMinute());
         calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
 
         if(calendar.getTimeInMillis() < System.currentTimeMillis()) {
             calendar.add(Calendar.DATE, 1);
@@ -180,7 +187,7 @@ public class AlarmSettingDialog extends Dialog {
         // TEST END
 
         Intent intent = new Intent(this.getContext(), AlarmReceiver.class);
-        intent.putExtra("id", id);
+        intent.putExtra(ALARM_ID_KEY_NAME, id);
 
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this.getContext(), (int) id, intent, PendingIntent.FLAG_CANCEL_CURRENT);
 
@@ -230,6 +237,9 @@ public class AlarmSettingDialog extends Dialog {
         AlarmEntity alarmEntity = new AlarmEntity();
         alarmEntity.setAlarmJson(GsonConverter.fromTypeToString(alarm));
         return alarmEntity;
+    }
+    private void setTimeValueForSort(AlarmEntity alarmEntity, Alarm alarm){
+        alarmEntity.setTimeValueForSort(alarm.getAmPm()*12*60 + alarm.getHour()*60 + alarm.getMinute());
     }
 }
 

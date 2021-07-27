@@ -1,4 +1,4 @@
-package com.example.timeassistant.domain.model;
+package com.example.timeassistant.database;
 
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
@@ -21,6 +21,6 @@ public interface AlarmDao {
     @Delete
     void delete(AlarmEntity alarmEntity);
 
-    @Query("SELECT * FROM alarm_table")
+    @Query("SELECT * FROM alarm_table ORDER BY timeValueForSort")
     LiveData<List<AlarmEntity>> getData();
 }

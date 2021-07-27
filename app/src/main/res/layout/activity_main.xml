@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/corin_lightGray"
-    tools:context=".domain.view.mainActivity.MainActivity">
+    tools:context=".mainActivity.MainActivity">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/mainActivity_titleBar"

@@ -1,7 +1,6 @@
-package com.example.timeassistant.domain.view.mainActivity;
+package com.example.timeassistant.mainActivity;
 
 import android.os.Bundle;
-import android.speech.tts.TextToSpeech;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -11,16 +10,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.timeassistant.R;
-import com.example.timeassistant.domain.model.AlarmDao;
-import com.example.timeassistant.domain.model.AlarmDatabase;
-import com.example.timeassistant.domain.view.alarmSettingDialog.AlarmSettingDialog;
-import com.example.timeassistant.domain.view.mainActivity.alarmList.AlarmAdapter;
+import com.example.timeassistant.database.AlarmDao;
+import com.example.timeassistant.database.AlarmDatabase;
+import com.example.timeassistant.AlarmSettingDialog;
+import com.example.timeassistant.database.AlarmEntity;
+import com.example.timeassistant.mainActivity.alarmList.AlarmAdapter;
 
-import java.util.Locale;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-
-    // 정렬 필요. 시간순
 
     private ImageView addImageView;
     private RecyclerView alarmList;
@@ -31,27 +29,23 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Find
         this.addImageView = this.findViewById(R.id.mainActivity_titleBar_addImageView);
         this.alarmList = this.findViewById(R.id.mainActivity_alarmList);
         this.emptyAlarmListPlaceHoldTextView = this.findViewById(R.id.mainActivity_emptyAlarmListPlaceHoldTextView);
 
-        // Set Attribute
-        this.alarmList.setLayoutManager(new LinearLayoutManager(this));
-
-        // Set Callback
-        this.addImageView.setOnClickListener(this::addAlarm);
         AlarmDatabase alarmDatabase = AlarmDatabase.getDatabase(this);
         AlarmDao alarmDao = alarmDatabase.alarmDao();
-        alarmDao.getData().observe(this, o->{
-            AlarmAdapter alarmAdapter = new AlarmAdapter( o);
-            this.alarmList.setAdapter(alarmAdapter);
-            if(alarmAdapter.getItemCount()!=0) {
-                this.emptyAlarmListPlaceHoldTextView.setVisibility(View.GONE);
-            }else{
-                this.emptyAlarmListPlaceHoldTextView.setVisibility(View.VISIBLE);
-            }
-        });
+        alarmDao.getData().observe(this, this::initializeView);
+    }
+
+    private void initializeView(List<AlarmEntity> alarmEntities) {
+        AlarmAdapter alarmAdapter = new AlarmAdapter(alarmEntities);
+        this.alarmList.setLayoutManager(new LinearLayoutManager(this));
+        this.alarmList.setAdapter(alarmAdapter);
+
+        this.emptyAlarmListPlaceHoldTextView.setVisibility(alarmAdapter.getItemCount()!=0? View.GONE:View.VISIBLE);
+
+        this.addImageView.setOnClickListener(this::addAlarm);
     }
 
     private void addAlarm(View view) {

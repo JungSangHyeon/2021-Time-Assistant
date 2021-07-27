@@ -1,11 +1,11 @@
-package com.example.timeassistant.domain.model;
+package com.example.timeassistant.database;
 
 import android.content.Context;
 
 import androidx.room.Database;
 import androidx.room.Room;
 
-@Database(entities = {AlarmEntity.class}, version = 1, exportSchema = false)
+@Database(entities = {AlarmEntity.class}, version = 2, exportSchema = false)
 public abstract class AlarmDatabase extends androidx.room.RoomDatabase {
 
     private static volatile AlarmDatabase INSTANCE;

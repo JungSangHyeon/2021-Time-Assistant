@@ -1,4 +1,4 @@
-package com.example.timeassistant.domain.model;
+package com.example.timeassistant.database;
 
 import com.google.gson.Gson;
 

@@ -1,4 +1,4 @@
-package com.example.timeassistant.domain.view.mainActivity.alarmList;
+package com.example.timeassistant.mainActivity.alarmList;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,20 +7,22 @@ import android.view.ViewGroup;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.timeassistant.R;
-import com.example.timeassistant.domain.model.AlarmEntity;
+import com.example.timeassistant.database.AlarmEntity;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
 
 public class AlarmAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
 
-    List<AlarmEntity> alarmEntities;
+    private List<AlarmEntity> alarmEntities;
 
     public AlarmAdapter(List<AlarmEntity> alarmEntities) {
         this.alarmEntities = alarmEntities;
-        Collections.sort(alarmEntities);
     }
 
+    @NotNull
     @Override
     public AlarmViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_alarm, parent,false);
@@ -29,11 +31,11 @@ public class AlarmAdapter extends RecyclerView.Adapter<AlarmViewHolder> {
 
     @Override
     public void onBindViewHolder(AlarmViewHolder holder, int position) {
-        holder.setData(alarmEntities.get(position));
+        holder.setData(this.alarmEntities.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return alarmEntities.size();
+        return this.alarmEntities.size();
     }
 }

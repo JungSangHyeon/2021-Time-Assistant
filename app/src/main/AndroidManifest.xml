@@ -10,16 +10,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TimeAssistant">
         <service
-            android:name=".domain.AlarmService"
+            android:name=".AlarmService"
             android:enabled="true"
             android:exported="true"></service>
 
         <receiver
-            android:name=".domain.AlarmReceiver"
+            android:name=".AlarmReceiver"
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".domain.view.mainActivity.MainActivity">
+        <activity android:name=".mainActivity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
