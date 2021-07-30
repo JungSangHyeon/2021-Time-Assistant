@@ -1,14 +1,17 @@
 package com.example.timeassistant;
 
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
@@ -30,6 +33,7 @@ import java.util.Locale;
 
 import static android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME;
 import static com.example.timeassistant.Constant.ALARM_ID_KEY_NAME;
+import static com.example.timeassistant.Constant.VOLUME_KEY_NAME;
 
 public class AlarmService extends Service {
 
@@ -84,9 +88,16 @@ public class AlarmService extends Service {
                         AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
                         audioManager.requestAudioFocus(audioFocusRequest);
 
-//                        AudioManager mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-//                        originalMediaVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-//                        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+                        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                        float value = ((float)prefs.getInt(VOLUME_KEY_NAME, 75))/100;
+                        Log.e("VOLUME", "READ: "+value);
+
+                        originalMediaVolume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+                        audioManager.setStreamVolume(
+                                AudioManager.STREAM_MUSIC,
+                                (int) (audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)*value),
+                                AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE
+                        );
                     }
 
                     @Override
@@ -96,8 +107,8 @@ public class AlarmService extends Service {
                         AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
                         audioManager.abandonAudioFocusRequest(audioFocusRequest);
 
-//                        AudioManager mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-//                        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, originalMediaVolume, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+                        AudioManager mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, originalMediaVolume, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
                     }
 
                     @Override

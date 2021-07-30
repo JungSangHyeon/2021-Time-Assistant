@@ -41,6 +41,17 @@
             app:layout_constraintTop_toTopOf="parent"
             app:tint="@color/black" />
 
+        <SeekBar
+            android:id="@+id/mainActivity_titleBar_volumeSeekBar"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="8dp"
+            android:progress="75"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/mainActivity_titleBar_addImageView"
+            app:layout_constraintStart_toEndOf="@+id/mainActivity_titleBar_titleTextView"
+            app:layout_constraintTop_toTopOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.recyclerview.widget.RecyclerView
