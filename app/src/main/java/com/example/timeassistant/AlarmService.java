@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -50,7 +51,7 @@ public class AlarmService extends Service {
                 liveData.removeObserver(this);
                 AlarmService.this.stopSelf();
 
-                Log.e("ALARM RECEIVE SERVICE", targetEntity.getId()+", "+targetAlarm.getTextToSpeech());
+                Log.e("ALARM RECEIVE SERVICE", targetEntity.getId() + ", " + targetAlarm.getTextToSpeech());
             }
         });
         return START_NOT_STICKY;
@@ -68,6 +69,8 @@ public class AlarmService extends Service {
         return targetEntity;
     }
 
+    AudioFocusRequest audioFocusRequest;
+
     private void startSpeech(String textToSpeech) {
         tts = new TextToSpeech(getApplicationContext(), status -> {
             if (status != TextToSpeech.ERROR) {
@@ -75,17 +78,31 @@ public class AlarmService extends Service {
                     @Override
                     public void onStart(String utteranceId) {
                         Log.e("TTS", "START");
-                        AudioManager mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-                        originalMediaVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-                        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+                        audioFocusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
+                                .build();
+
+                        AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                        audioManager.requestAudioFocus(audioFocusRequest);
+
+//                        AudioManager mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+//                        originalMediaVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+//                        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, mAudioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
                     }
+
                     @Override
                     public void onDone(String utteranceId) {
                         Log.e("TTS", "DONE");
-                        AudioManager mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
-                        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, originalMediaVolume, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+
+                        AudioManager audioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+                        audioManager.abandonAudioFocusRequest(audioFocusRequest);
+
+//                        AudioManager mAudioManager = (AudioManager) getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+//                        mAudioManager.setStreamVolume(AudioManager.STREAM_MUSIC, originalMediaVolume, AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
                     }
-                    @Override public void onError(String utteranceId) { }
+
+                    @Override
+                    public void onError(String utteranceId) {
+                    }
                 });
                 Bundle parameters = new Bundle();
                 parameters.putFloat(KEY_PARAM_VOLUME, 1f);
@@ -103,16 +120,16 @@ public class AlarmService extends Service {
         calendar.set(Calendar.SECOND, 0);
         calendar.set(Calendar.MILLISECOND, 0);
 
-        if(calendar.getTimeInMillis() < System.currentTimeMillis()) {
+        if (calendar.getTimeInMillis() < System.currentTimeMillis()) {
             calendar.add(Calendar.DATE, 1);
         }
 
-        while(!alarm.getWeekDays()[calendar.get(Calendar.DAY_OF_WEEK)-1]) {
+        while (!alarm.getWeekDays()[calendar.get(Calendar.DAY_OF_WEEK) - 1]) {
             calendar.add(Calendar.DATE, 1);
         }
 
         // TEST
-        SimpleDateFormat format2 = new SimpleDateFormat ( "yyyy년 MM월dd일 HH시mm분ss초");
+        SimpleDateFormat format2 = new SimpleDateFormat("yyyy년 MM월dd일 HH시mm분ss초");
         String time1 = format2.format(calendar.getTimeInMillis());
         Log.e("ALARM SET AT SERVICE", time1);
         // TEST END
