@@ -2,6 +2,8 @@ package com.example.timeassistant;
 
 import android.app.Activity;
 import android.app.AlarmManager;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
@@ -9,6 +11,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -17,6 +20,8 @@ import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 
@@ -39,6 +44,8 @@ public class AlarmService extends Service {
 
     private TextToSpeech tts;
     private int originalMediaVolume;
+    Alarm targetAlarm;
+    AlarmEntity targetEntity;
 
     @Override
     public int onStartCommand(@Nullable Intent intent, int flags, int startId) {
@@ -48,8 +55,8 @@ public class AlarmService extends Service {
         liveData.observeForever(new Observer<List<AlarmEntity>>() {
             @Override
             public void onChanged(List<AlarmEntity> alarmEntities) {
-                AlarmEntity targetEntity = getTargetEntity(alarmEntities, intent);
-                Alarm targetAlarm = GsonConverter.fromStringToType(targetEntity.getAlarmJson(), Alarm.class);
+                targetEntity = getTargetEntity(alarmEntities, intent);
+                targetAlarm = GsonConverter.fromStringToType(targetEntity.getAlarmJson(), Alarm.class);
                 startSpeech(targetAlarm.getTextToSpeech());
                 setAlarm(targetEntity, targetAlarm);
                 liveData.removeObserver(this);
@@ -82,6 +89,29 @@ public class AlarmService extends Service {
                     @Override
                     public void onStart(String utteranceId) {
                         Log.e("TTS", "START");
+
+                        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "asdf")
+                                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                                .setContentTitle("Time Assistant")
+                                .setContentText(targetAlarm.getTextToSpeech())
+                                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            CharSequence name = "TSA";
+                            String description = "Text Speck Assistant";
+                            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+                            NotificationChannel channel = new NotificationChannel("TSA ID", name, importance);
+                            channel.setDescription(description);
+                            // Register the channel with the system; you can't change the importance
+                            // or other notification behaviors after this
+                            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+                            notificationManager.createNotificationChannel(channel);
+                            builder.setChannelId("TSA ID");
+                        }
+
+                        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
+                        notificationManager.notify(targetEntity.getId(), builder.build());
+
                         audioFocusRequest = new AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK)
                                 .build();
 
