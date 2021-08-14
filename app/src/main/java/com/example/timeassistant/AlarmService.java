@@ -40,7 +40,7 @@ import static android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME;
 import static com.example.timeassistant.Constant.ALARM_ID_KEY_NAME;
 import static com.example.timeassistant.Constant.VOLUME_KEY_NAME;
 
-public class AlarmService extends Service {
+public class AlarmService extends Service { // TEST
 
     private TextToSpeech tts;
     private int originalMediaVolume;
